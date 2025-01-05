@@ -1,5 +1,5 @@
 {
-  "name": "firebase-sample",
+  "name": "firebase-auth-sample",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -41,5 +41,5 @@
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.1.0"
   },
-  "homepage": "https://nabeo114.github.io/firebase-sample"
+  "homepage": "https://nabeo114.github.io/firebase-auth-sample"
 }
