@@ -1,13 +1,16 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, User } from "firebase/auth";
 import { Typography, Box, Card, CardContent, Button } from "@mui/material";
-import AuthModal from "./components/AuthModal";
+import SignUpModal from "./components/SignUpModal";
+import LoginModal from "./components/LoginModal";
+import PasswordResetModal from "./components/PasswordResetModal";
 import { auth } from "./config";
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [signupOpen, setSignupOpen] = useState(false);
+  const [signUpOpen, setSignUpOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
 
   // サインアップ処理
   const handleSignup = async (email: string, password: string) => {
@@ -42,6 +45,17 @@ const App: React.FC = () => {
     }
   };
 
+  // パスワードリセット処理
+  const handlePasswordReset = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("Password reset email sent successfully!");
+      setResetPasswordOpen(false);
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f5f5f5" padding={2}>
       <Card sx={{ maxWidth: 500, width: "100%", padding: 3 }}>
@@ -51,7 +65,7 @@ const App: React.FC = () => {
           </Typography>
           {!user ? (
             <Box textAlign="center">
-              <Button variant="contained" color="primary" onClick={() => setSignupOpen(true)}>
+              <Button variant="contained" color="primary" onClick={() => setSignUpOpen(true)}>
                 Sign Up
               </Button>
               <Button variant="contained" color="secondary" onClick={() => setLoginOpen(true)} style={{ marginLeft: "10px" }}>
@@ -63,7 +77,7 @@ const App: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Logged in as: {user.email}
               </Typography>
-              <Button variant="contained" color="error" onClick={handleLogout}>
+              <Button variant="contained" color="secondary" onClick={handleLogout}>
                 Log Out
               </Button>
             </Box>
@@ -72,19 +86,36 @@ const App: React.FC = () => {
       </Card>
 
       {/* サインアップモーダル */}
-      <AuthModal
-        open={signupOpen}
-        onClose={() => setSignupOpen(false)}
-        onSubmit={handleSignup}
-        title="Sign Up"
+      <SignUpModal
+        open={signUpOpen}
+        onClose={() => setSignUpOpen(false)}
+        onSignUp={handleSignup}
+        onSwitchToLogin={() => {
+          setSignUpOpen(false);
+          setLoginOpen(true);
+        }}
       />
 
       {/* ログインモーダル */}
-      <AuthModal
+      <LoginModal
         open={loginOpen}
         onClose={() => setLoginOpen(false)}
-        onSubmit={handleLogin}
-        title="Log In"
+        onLogin={handleLogin}
+        onForgotPassword={() => {
+          setLoginOpen(false);
+          setResetPasswordOpen(true);
+        }}
+        onSwitchToSignUp={() => {
+          setLoginOpen(false);
+          setSignUpOpen(true);
+        }}
+      />
+
+      {/* パスワードリセットモーダル */}
+      <PasswordResetModal
+        open={resetPasswordOpen}
+        onClose={() => setResetPasswordOpen(false)}
+        onReset={handlePasswordReset}
       />
     </Box>
   );
